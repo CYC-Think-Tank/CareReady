@@ -46,7 +46,7 @@ export default function Home() {
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <Link className="button-secondary" href="/sign-up">
-                  Start and save progress
+                  Create a learner account
                   <ArrowRight size={18} />
                 </Link>
                 <Link
@@ -293,13 +293,13 @@ export default function Home() {
               </p>
               <div>
                 <p className="mt-8 text-2xl font-black tracking-[-0.035em]">
-                  Create a learner account and pick up where you left off.
+                  Create an account and pick up where you left off on any device.
                 </p>
                 <Link
                   className="mt-8 inline-flex min-h-12 w-full items-center justify-between border-2 border-white bg-white px-5 text-sm font-extrabold text-ink transition hover:bg-mint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-citrus focus-visible:ring-offset-4 focus-visible:ring-offset-ink"
                   href="/sign-up"
                 >
-                  Create free account <ArrowRight size={18} />
+                  Create account <ArrowRight size={18} />
                 </Link>
               </div>
             </div>

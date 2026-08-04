@@ -8,4 +8,3 @@ export const metadata: Metadata = { title: "Sign in" };
 export default function SignInPage() {
   return <AuthPage mode="sign-in" configured={isSupabaseConfigured()} />;
 }
-

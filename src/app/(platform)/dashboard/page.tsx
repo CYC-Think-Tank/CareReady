@@ -65,11 +65,11 @@ export default async function DashboardPage() {
         <div className="mt-7 flex flex-col gap-4 border-l-4 border-blue bg-blue/10 p-4 text-sm text-ink/70 sm:flex-row sm:items-center sm:justify-between">
           <p>
             <strong className="text-ink">Preview mode:</strong> this sample
-            activity demonstrates the dashboard. Connect Supabase to enable real
-            accounts and cross-device progress.
+            activity demonstrates the dashboard. Connect Supabase to enable
+            private learner accounts and saved progress.
           </p>
           <Link className="shrink-0 font-extrabold text-blue underline" href="/sign-up">
-            Account setup
+            Create an account
           </Link>
         </div>
       )}

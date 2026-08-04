@@ -52,7 +52,7 @@ export function PlatformShell({
             </span>
           )}
           <Link
-            href={viewer.id ? "/profile" : "/sign-in"}
+            href={viewer.id ? "/profile" : "/sign-in?next=/profile"}
             className="flex items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-citrus"
           >
             <span className="grid size-10 place-items-center bg-white/10 text-mint">
@@ -89,12 +89,12 @@ export function PlatformShell({
               </span>
             )}
             <Link
-              href={viewer.id ? "/profile" : "/sign-in"}
+              href={viewer.id ? "/profile" : "/sign-in?next=/profile"}
               className="button-quiet min-h-10 px-3"
             >
               <CircleUserRound size={18} />
               <span className="hidden sm:inline">
-                {viewer.id ? "Account" : "Sign in"}
+                {viewer.id ? "Profile" : "Sign in"}
               </span>
             </Link>
           </div>

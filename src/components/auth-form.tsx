@@ -5,8 +5,47 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-import { createClient } from "@/lib/supabase/client";
 import { safeRedirectPath } from "@/lib/safe-redirect";
+import { createClient } from "@/lib/supabase/client";
+import { getSupabaseConfig } from "@/lib/supabase/config";
+import {
+  isValidUsername,
+  normalizeUsername,
+  usernameToInternalEmail,
+} from "@/lib/username-account";
+
+function friendlyAuthError(message: string, isSignUp: boolean) {
+  const normalized = message.toLowerCase();
+
+  if (
+    normalized.includes("already registered") ||
+    normalized.includes("already been registered") ||
+    normalized.includes("user already exists")
+  ) {
+    return "That username is already taken.";
+  }
+
+  if (
+    !isSignUp &&
+    (normalized.includes("invalid login") ||
+      normalized.includes("invalid credentials"))
+  ) {
+    return "The username or password is incorrect.";
+  }
+
+  return message;
+}
+
+async function registrationIsReady() {
+  const { url, publishableKey } = getSupabaseConfig();
+  const response = await fetch(`${url}/auth/v1/settings`, {
+    headers: { apikey: publishableKey },
+  });
+
+  if (!response.ok) return null;
+  const settings = (await response.json()) as { mailer_autoconfirm?: boolean };
+  return settings.mailer_autoconfirm === true;
+}
 
 export function AuthForm({
   mode,
@@ -19,45 +58,82 @@ export function AuthForm({
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [confirmation, setConfirmation] = useState(false);
+  const [setupRequired, setSetupRequired] = useState(false);
+  const [username, setUsername] = useState("");
   const isSignUp = mode === "sign-up";
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage(null);
+    setSetupRequired(false);
 
     if (!configured) {
-      setMessage("Supabase credentials are required to activate learner accounts.");
+      setMessage("The learner account service has not been connected yet.");
+      return;
+    }
+
+    const normalizedUsername = normalizeUsername(username);
+    if (!isValidUsername(normalizedUsername)) {
+      setMessage(
+        "Choose a username with 3–30 lowercase letters, numbers, periods, hyphens, or underscores.",
+      );
       return;
     }
 
     setLoading(true);
     const form = new FormData(event.currentTarget);
-    const email = String(form.get("email") ?? "").trim();
     const password = String(form.get("password") ?? "");
+    const internalEmail = usernameToInternalEmail(normalizedUsername);
     const supabase = createClient();
 
     if (isSignUp) {
+      const ready = await registrationIsReady();
+      if (ready !== true) {
+        setSetupRequired(true);
+        setMessage(
+          ready === false
+            ? "Account creation needs one administrator setting. Disable “Confirm email” in Supabase Authentication, then try again."
+            : "The account settings could not be verified. Check the Supabase connection and try again.",
+        );
+        setLoading(false);
+        return;
+      }
+
       const fullName = String(form.get("fullName") ?? "").trim();
-      const profession = String(form.get("profession") ?? "Healthcare professional");
-      const { error } = await supabase.auth.signUp({
-        email,
+      const profession = String(
+        form.get("profession") ?? "Healthcare professional",
+      );
+      const { data, error } = await supabase.auth.signUp({
+        email: internalEmail,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
-          data: { full_name: fullName, profession },
+          data: {
+            username: normalizedUsername,
+            full_name: fullName,
+            profession,
+          },
         },
       });
 
       if (error) {
-        setMessage(error.message);
+        setMessage(friendlyAuthError(error.message, true));
+      } else if (!data.session) {
+        setSetupRequired(true);
+        setMessage(
+          "Account creation is waiting for an administrator setting. Disable “Confirm email” in Supabase Authentication, then try signing in.",
+        );
       } else {
-        setConfirmation(true);
+        const next = safeRedirectPath(searchParams.get("next"), "/dashboard");
+        router.push(next);
+        router.refresh();
       }
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({
+        email: internalEmail,
+        password,
+      });
       if (error) {
-        setMessage(error.message);
+        setMessage(friendlyAuthError(error.message, false));
       } else {
         const next = safeRedirectPath(searchParams.get("next"), "/dashboard");
         router.push(next);
@@ -67,21 +143,22 @@ export function AuthForm({
     setLoading(false);
   }
 
-  if (confirmation) {
+  if (setupRequired) {
     return (
       <div className="border-2 border-ink bg-paper p-7 shadow-[7px_7px_0_0_var(--citrus)]">
-        <span className="grid size-12 place-items-center bg-mint text-teal">
+        <span className="grid size-12 place-items-center bg-citrus text-ink">
           <LockKeyhole size={23} />
         </span>
         <h2 className="mt-6 text-2xl font-black tracking-[-0.04em] text-ink">
-          Check your inbox
+          One project setting remains
         </h2>
-        <p className="mt-3 text-sm leading-6 text-ink/65">
-          We sent a confirmation link to your email address. Open it to activate
-          your learner account and begin saving progress.
+        <p className="mt-3 text-sm leading-6 text-ink/65">{message}</p>
+        <p className="mt-3 text-xs leading-5 text-ink/50">
+          Learners will still use only a username and password. No email address
+          is collected or verified.
         </p>
         <Link href="/sign-in" className="button-primary mt-7 w-full">
-          Return to sign in <ArrowRight size={18} />
+          Go to sign in <ArrowRight size={18} />
         </Link>
       </div>
     );
@@ -108,7 +185,12 @@ export function AuthForm({
             <label className="field-label" htmlFor="profession">
               Your role
             </label>
-            <select className="text-field" id="profession" name="profession" defaultValue="Personal Support Worker">
+            <select
+              className="text-field"
+              id="profession"
+              name="profession"
+              defaultValue="Personal Support Worker"
+            >
               <option>Personal Support Worker</option>
               <option>Nurse</option>
               <option>Healthcare aide</option>
@@ -120,27 +202,40 @@ export function AuthForm({
         </>
       )}
       <div>
-        <label className="field-label" htmlFor="email">
-          Email address
+        <label className="field-label" htmlFor="username">
+          Username
         </label>
         <input
           className="text-field"
-          id="email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          inputMode="email"
-          placeholder="alex@example.ca"
+          id="username"
+          name="username"
+          type="text"
+          autoComplete="username"
+          autoCapitalize="none"
+          spellCheck={false}
+          minLength={3}
+          maxLength={30}
+          pattern="[a-z0-9][a-z0-9_-]*(?:\.[a-z0-9_-]+)*"
+          placeholder="alex.morgan"
+          value={username}
+          onChange={(event) => setUsername(event.target.value.toLowerCase())}
           required
         />
+        {isSignUp && (
+          <p className="mt-2 text-xs leading-5 text-ink/45">
+            Use 3–30 lowercase letters, numbers, periods, hyphens, or underscores.
+          </p>
+        )}
       </div>
       <div>
-        <div className="mb-2 flex items-center justify-between">
+        <div className="mb-2 flex items-center justify-between gap-3">
           <label className="text-sm font-bold text-ink" htmlFor="password">
             Password
           </label>
           {!isSignUp && (
-            <span className="text-xs font-bold text-ink/40">Reset flow coming soon</span>
+            <span className="text-right text-xs font-bold text-ink/40">
+              Ask an administrator to reset it
+            </span>
           )}
         </div>
         <input
@@ -156,7 +251,10 @@ export function AuthForm({
       </div>
 
       {message && (
-        <div className="flex gap-3 border-l-4 border-coral bg-coral/10 p-4 text-sm leading-6 text-ink/70" role="alert">
+        <div
+          className="flex gap-3 border-l-4 border-coral bg-coral/10 p-4 text-sm leading-6 text-ink/70"
+          role="alert"
+        >
           <CircleAlert size={18} className="mt-0.5 shrink-0 text-coral" />
           <p>{message}</p>
         </div>
@@ -169,7 +267,11 @@ export function AuthForm({
         </div>
       )}
 
-      <button type="submit" className="button-secondary mt-1 w-full" disabled={loading}>
+      <button
+        type="submit"
+        className="button-secondary mt-1 w-full"
+        disabled={loading}
+      >
         {loading ? <LoaderCircle size={18} className="animate-spin" /> : null}
         {isSignUp ? "Create learner account" : "Sign in to learning"}
         {!loading && <ArrowRight size={18} />}

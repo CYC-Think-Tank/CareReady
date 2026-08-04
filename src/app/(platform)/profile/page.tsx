@@ -1,4 +1,4 @@
-import { CircleUserRound, LogOut, ShieldCheck } from "lucide-react";
+import { CircleUserRound, LogOut, ShieldCheck, UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
@@ -47,16 +47,21 @@ export default async function ProfilePage() {
             </p>
           </div>
           <div className="border border-ink/15 bg-paper p-5">
-            <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-teal">Email</p>
-            <p className="mt-2 break-all text-sm font-bold text-ink">
-              {viewer.email ?? (viewer.isDemo ? "preview@careready.ca" : "Not available")}
+            <UserRound size={22} className="text-teal" />
+            <p className="mt-4 text-xs font-extrabold uppercase tracking-[0.14em] text-teal">
+              Username
+            </p>
+            <p className="mt-2 text-sm font-bold leading-6 text-ink">
+              {viewer.username ?? "Not available in preview"}
             </p>
           </div>
-          <form action="/auth/signout" method="post">
-            <button type="submit" className="button-quiet w-full justify-between">
-              Sign out <LogOut size={18} />
-            </button>
-          </form>
+          {viewer.id && (
+            <form action="/auth/signout" method="post">
+              <button type="submit" className="button-quiet w-full border border-ink/15 bg-paper">
+                <LogOut size={17} /> Sign out
+              </button>
+            </form>
+          )}
         </aside>
       </div>
     </div>

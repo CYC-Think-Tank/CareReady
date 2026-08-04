@@ -22,7 +22,9 @@ export function AuthPage({
             Ontario healthcare workforce development
           </p>
           <h1 className="mt-5 text-4xl font-black leading-[1.02] tracking-[-0.055em] sm:text-5xl">
-            {isSignUp ? "Your learning, ready for the next shift." : "Welcome back to practical learning."}
+            {isSignUp
+              ? "Your learning, ready for the next shift."
+              : "Welcome back to practical learning."}
           </h1>
           <p className="mt-6 max-w-lg text-base leading-7 text-white/60">
             Learn in short sessions, revisit workplace protocols, and keep your
@@ -32,9 +34,12 @@ export function AuthPage({
             {[
               "Seven focused physical-health modules",
               "Short scenarios and knowledge checks",
-              "Progress saved securely with Supabase",
+              "Progress saved to your learner account",
             ].map((item) => (
-              <li key={item} className="flex items-center gap-3 text-sm font-bold text-white/75">
+              <li
+                key={item}
+                className="flex items-center gap-3 text-sm font-bold text-white/75"
+              >
                 <span className="grid size-7 place-items-center bg-citrus text-ink">
                   <Check size={15} />
                 </span>
@@ -51,25 +56,35 @@ export function AuthPage({
 
       <section className="flex items-center justify-center p-5 py-12 sm:p-10">
         <div className="w-full max-w-[470px]">
-          <Link href="/" className="inline-flex items-center gap-2 text-sm font-extrabold text-teal">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm font-extrabold text-teal"
+          >
             ← Back to program overview
           </Link>
-          <p className="eyebrow mt-9">{isSignUp ? "Create account" : "Learner sign in"}</p>
+          <p className="eyebrow mt-9">
+            {isSignUp ? "Create account" : "Learner sign in"}
+          </p>
           <h2 className="mt-3 text-4xl font-black tracking-[-0.055em] text-ink">
             {isSignUp ? "Start learning." : "Continue learning."}
           </h2>
           <p className="mt-3 text-sm leading-6 text-ink/55">
             {isSignUp
-              ? "Create a personal account to keep your course and protocol-check progress in sync."
-              : "Enter your account details to return to your dashboard."}
+              ? "Choose a username and password to save your course and protocol-check progress."
+              : "Enter your username and password to return to your dashboard."}
           </p>
           <div className="mt-8">
-            <Suspense fallback={<div className="h-80 border border-ink/10 bg-paper" />}>
+            <Suspense
+              fallback={<div className="h-80 border border-ink/10 bg-paper" />}
+            >
               <AuthForm mode={mode} configured={configured} />
             </Suspense>
           </div>
           <div className="mt-7 border-t border-ink/10 pt-6 text-center">
-            <Link href="/dashboard" className="text-sm font-extrabold text-blue underline underline-offset-4">
+            <Link
+              href="/dashboard"
+              className="text-sm font-extrabold text-blue underline underline-offset-4"
+            >
               Explore the dashboard preview
             </Link>
           </div>
@@ -78,4 +93,3 @@ export function AuthPage({
     </main>
   );
 }
-

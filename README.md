@@ -2,7 +2,7 @@
 
 A responsive physical healthcare training platform prototype for Ontario personal
 support workers and the wider care team. The application includes public course
-previews, learner accounts, saved progress, knowledge checks, protocol reminders,
+previews, username-based learner accounts, saved progress, knowledge checks, protocol reminders,
 and placeholder Ontario training-funding information.
 
 > All clinical and funding content is placeholder information. It requires review
@@ -27,23 +27,31 @@ npm run dev
 The interface runs in preview mode when Supabase is not configured. Preview mode
 uses sample learner activity and does not persist changes.
 
-## Enable accounts and saved progress
+## Enable username accounts and saved progress
 
 1. Create a Supabase project.
 2. Copy `.env.example` to `.env.local` and add the project URL and publishable key.
 3. Apply `supabase/migrations/202608040001_initial_training_schema.sql` to the project.
-4. Add the local and deployed `/auth/callback` URLs to the Supabase Auth redirect allow list.
+4. In Supabase Authentication → Sign In / Providers, keep the **Email** provider
+   enabled and turn **Confirm email** off.
 5. Restart the development server.
 
 The migration creates learner profiles, lesson progress, quiz attempts, and
 protocol acknowledgements. Row-level security restricts each record to its owner.
 Never expose a Supabase service-role key in this application.
 
+Learners create an account with a username and password; the interface never asks
+for or verifies an email address. Supabase's password provider requires an email-shaped
+identifier internally, so the app derives a reserved, non-deliverable address from
+the username. This identifier is never shown to the learner or used for email.
+Password recovery is therefore administrator-managed until a separate recovery-code
+or identity-verification workflow is added.
+
 ## Update course material
 
 Course modules and lesson content live in `src/content/course.ts`. The content is
 separate from learner records so approved material can replace the prototype copy
-without changing the account or progress model.
+without changing the learner-session or progress model.
 
 Before release:
 

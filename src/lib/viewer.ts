@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export type Viewer = {
   id: string | null;
-  email: string | null;
+  username: string | null;
   fullName: string;
   profession: string;
   isDemo: boolean;
@@ -15,7 +15,7 @@ export async function getViewer(): Promise<Viewer> {
   if (!isSupabaseConfigured()) {
     return {
       id: null,
-      email: null,
+      username: "alex.morgan",
       fullName: "Alex Morgan",
       profession: "Personal Support Worker",
       isDemo: true,
@@ -29,7 +29,7 @@ export async function getViewer(): Promise<Viewer> {
   if (!claims) {
     return {
       id: null,
-      email: null,
+      username: null,
       fullName: "Guest learner",
       profession: "Healthcare professional",
       isDemo: false,
@@ -40,12 +40,13 @@ export async function getViewer(): Promise<Viewer> {
 
   return {
     id: String(claims.sub),
-    email: typeof claims.email === "string" ? claims.email : null,
+    username:
+      typeof metadata.username === "string" ? metadata.username : null,
     fullName:
       typeof metadata.full_name === "string"
         ? metadata.full_name
-        : typeof claims.email === "string"
-          ? claims.email.split("@")[0]
+        : typeof metadata.username === "string"
+          ? metadata.username
           : "Learner",
     profession:
       typeof metadata.profession === "string"

@@ -21,8 +21,8 @@ export function PublicHeader() {
             Funding
           </Link>
         </nav>
-        <div className="flex items-center gap-2 sm:gap-3">
-          <Link className="button-quiet hidden sm:inline-flex" href="/sign-in">
+        <div className="flex items-center gap-2">
+          <Link className="button-quiet hidden min-h-11 px-4 sm:inline-flex" href="/sign-in">
             Sign in
           </Link>
           <Link className="button-primary min-h-11 px-4 sm:px-5" href="/sign-up">
@@ -33,4 +33,3 @@ export function PublicHeader() {
     </header>
   );
 }
-

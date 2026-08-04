@@ -2,6 +2,7 @@
 
 import { ArrowRight, Check, CircleAlert, LoaderCircle, LockKeyhole } from "lucide-react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 import type { CourseModule, Lesson } from "@/content/course";
@@ -23,6 +24,8 @@ export function LessonExperience({
   viewerId: string | null;
   initiallyComplete: boolean;
 }) {
+  const pathname = usePathname();
+  const router = useRouter();
   const [selected, setSelected] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [complete, setComplete] = useState(initiallyComplete);
@@ -49,11 +52,17 @@ export function LessonExperience({
     setSaving(true);
     setMessage(null);
 
+    if (!viewerId && isSupabaseConfigured()) {
+      setSaving(false);
+      router.push(`/sign-in?next=${encodeURIComponent(pathname)}`);
+      return;
+    }
+
     if (!viewerId || !isSupabaseConfigured()) {
       setComplete(true);
       setSaving(false);
       setMessage(
-        "Preview complete. Create or connect an account to save this progress across devices.",
+        "Preview complete. Connect Supabase to save progress to a learner account.",
       );
       return;
     }
@@ -243,4 +252,3 @@ export function LessonExperience({
     </>
   );
 }
-
