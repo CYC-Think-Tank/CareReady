@@ -4,7 +4,6 @@ import {
   CircleUserRound,
   LayoutDashboard,
   LogIn,
-  WalletCards,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -19,7 +18,6 @@ const navigation = [
     icon: BookOpenText,
   },
   { href: "/protocols", label: "Protocol checks", icon: BellRing },
-  { href: "/funding", label: "Funding info", icon: WalletCards },
 ];
 
 export function PlatformShell({
@@ -101,10 +99,10 @@ export function PlatformShell({
         </header>
         <main>{children}</main>
         <nav
-          className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-ink/10 bg-white px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 lg:hidden"
+          className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t border-ink/10 bg-white px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 lg:hidden"
           aria-label="Mobile learner navigation"
         >
-          {navigation.slice(0, 4).map(({ href, label, icon: Icon }) => (
+          {navigation.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}

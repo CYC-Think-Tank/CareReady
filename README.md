@@ -2,10 +2,10 @@
 
 A responsive physical healthcare training platform prototype for Ontario personal
 support workers and the wider care team. The application includes public course
-previews, username-based learner accounts, saved progress, knowledge checks, protocol reminders,
-and placeholder Ontario training-funding information.
+previews, username-based learner accounts, saved progress, knowledge checks, and
+protocol reminders.
 
-> All clinical and funding content is placeholder information. It requires review
+> All clinical content is placeholder information. It requires review
 > by qualified clinical, legal, privacy, and program stakeholders before formal use.
 
 ## Technology
@@ -57,7 +57,6 @@ Before release:
 
 - Replace every placeholder warning with approved Ontario and organization-specific guidance.
 - Add controlled-document links and review schedules to the protocol reminders.
-- Verify current funding details against official Ontario sources.
 - Complete privacy, accessibility, clinical, and legal review.
 - Do not collect patient or resident health information.
 

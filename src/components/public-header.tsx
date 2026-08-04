@@ -17,9 +17,6 @@ export function PublicHeader() {
           <a className="nav-link" href="#approach">
             How it works
           </a>
-          <Link className="nav-link" href="/funding">
-            Funding
-          </Link>
         </nav>
         <div className="flex items-center gap-2">
           <Link className="button-quiet hidden min-h-11 px-4 sm:inline-flex" href="/sign-in">
