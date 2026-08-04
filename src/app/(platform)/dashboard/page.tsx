@@ -224,7 +224,7 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      <section className="mt-10 grid gap-5 md:grid-cols-2">
+      <section className="mt-10">
         <Link
           href="/protocols"
           className="group flex items-start gap-5 border border-ink/15 bg-citrus/30 p-6 transition hover:border-ink/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
@@ -239,23 +239,6 @@ export default async function DashboardPage() {
             </span>
             <span className="mt-4 inline-flex items-center gap-2 text-sm font-extrabold text-teal">
               Open reminders <ArrowRight size={16} className="transition group-hover:translate-x-1" />
-            </span>
-          </span>
-        </Link>
-        <Link
-          href="/funding"
-          className="group flex items-start gap-5 border border-ink/15 bg-blue/10 p-6 transition hover:border-ink/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-        >
-          <span className="grid size-11 shrink-0 place-items-center bg-blue text-white">
-            <ShieldCheck size={21} />
-          </span>
-          <span>
-            <span className="font-extrabold text-ink">Ontario funding information</span>
-            <span className="mt-2 block text-sm leading-6 text-ink/60">
-              Review the placeholder employer and training-support information.
-            </span>
-            <span className="mt-4 inline-flex items-center gap-2 text-sm font-extrabold text-blue">
-              View funding page <ArrowRight size={16} className="transition group-hover:translate-x-1" />
             </span>
           </span>
         </Link>

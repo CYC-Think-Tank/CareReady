@@ -5,7 +5,6 @@ import {
   LayoutDashboard,
   LogIn,
   SlidersHorizontal,
-  WalletCards,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -25,7 +24,6 @@ export function PlatformShell({
     { href: "/dashboard", label: "My learning", icon: LayoutDashboard },
     { href: coursesHref, label: "Course modules", icon: BookOpenText },
     { href: "/protocols", label: "Protocol checks", icon: BellRing },
-    { href: "/funding", label: "Funding info", icon: WalletCards },
     ...(viewer.isAdmin
       ? [{ href: "/admin", label: "Module admin", icon: SlidersHorizontal }]
       : []),
