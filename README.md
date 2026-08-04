@@ -49,9 +49,41 @@ or identity-verification workflow is added.
 
 ## Update course material
 
-Course modules and lesson content live in `src/content/course.ts`. The content is
-separate from learner records so approved material can replace the prototype copy
-without changing the learner-session or progress model.
+Course modules live in the `modules` table and are edited from the in-app admin
+area at `/admin`. Each module is one information lesson followed by one knowledge
+check, and admins can create, edit, publish, unpublish, and delete them.
+
+To enable the admin area:
+
+1. Apply `supabase/migrations/202608040002_admin_authored_modules.sql` to the
+   project. It creates the `modules` table, adds `profiles.is_admin`, and seeds
+   the seven modules that previously lived in `src/content/course.ts`.
+2. Create a learner account at `/sign-up` if you do not have one.
+3. Promote it in the Supabase SQL editor. Accounts are keyed by username, not by
+   email — `auth.users.email` holds a derived, non-deliverable
+   `<username>@accounts.careready.invalid` address, so match on the username:
+
+   ```sql
+   update public.profiles set is_admin = true
+   where id = (
+     select id from auth.users
+     where raw_user_meta_data->>'username' = 'your-username'
+   )
+   returning id, full_name, is_admin;
+   ```
+
+   An empty `returning` result means no row matched. List the available accounts
+   with `select id, email, raw_user_meta_data->>'username' from auth.users;`.
+
+4. Sign in again. **Module admin** appears in the sidebar.
+
+Row-level security lets anyone read published modules, while inserts, updates,
+deletes, and access to unpublished drafts require `is_admin`. Learners keep the
+ability to edit their own name and role but can no longer write `is_admin`.
+
+`src/content/course.ts` remains as the bundled fallback: it is what renders if
+Supabase is unreachable or the migration has not been applied yet. Module slugs
+are fixed after creation because saved progress is keyed on them.
 
 Before release:
 

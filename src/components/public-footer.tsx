@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { Brand } from "@/components/brand";
 
-export function PublicFooter() {
+export function PublicFooter({ lessonHref = "/dashboard" }: { lessonHref?: string }) {
   return (
     <footer className="border-t border-white/10 bg-ink text-white">
       <div className="page-shell grid gap-10 py-12 md:grid-cols-[1.4fr_1fr_1fr]">
@@ -17,7 +17,7 @@ export function PublicFooter() {
           <p className="footer-heading">Platform</p>
           <div className="mt-4 grid gap-3 text-sm text-white/70">
             <Link href="/dashboard">Learner dashboard</Link>
-            <Link href="/course/skin-changes/observe">Preview a lesson</Link>
+            <Link href={lessonHref}>Preview a lesson</Link>
             <Link href="/protocols">Protocol reminders</Link>
           </div>
         </div>
