@@ -14,7 +14,7 @@ import Link from "next/link";
 
 import { PublicFooter } from "@/components/public-footer";
 import { PublicHeader } from "@/components/public-header";
-import { courseModules, totalLessons, totalMinutes } from "@/content/course";
+import { getCourseSummary, getFirstLessonHref } from "@/lib/modules";
 
 const accentStyles = {
   mint: "border-mint bg-mint/35",
@@ -23,7 +23,11 @@ const accentStyles = {
   blue: "border-blue bg-blue/10",
 };
 
-export default function Home() {
+export default async function Home() {
+  const { modules: courseModules, totalLessons, totalMinutes } =
+    await getCourseSummary();
+  const firstLessonHref = getFirstLessonHref(courseModules);
+
   return (
     <div className="min-h-screen bg-cream">
       <PublicHeader />
@@ -51,7 +55,7 @@ export default function Home() {
                 </Link>
                 <Link
                   className="button-quiet min-h-12 border-2 border-ink/20 bg-transparent"
-                  href="/course/skin-changes/observe"
+                  href={firstLessonHref}
                 >
                   Preview a lesson
                 </Link>
@@ -130,7 +134,7 @@ export default function Home() {
                     </div>
                   </div>
                   <Link
-                    href="/course/skin-changes/observe"
+                    href={firstLessonHref}
                     className="mt-5 flex min-h-11 w-full items-center justify-between border-t border-ink/15 pt-4 text-sm font-extrabold text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                   >
                     Resume lesson <ArrowRight size={18} />
@@ -150,7 +154,7 @@ export default function Home() {
         <section className="bg-ink text-white" aria-label="Course at a glance">
           <div className="page-shell grid grid-cols-2 gap-px bg-white/15 md:grid-cols-4">
             {[
-              ["7", "Focused modules"],
+              [String(courseModules.length), "Focused modules"],
               [String(totalLessons), "Short lessons"],
               [`${Math.ceil(totalMinutes / 60)} hrs`, "Estimated time"],
               ["Any role", "Care-team access"],
@@ -306,7 +310,7 @@ export default function Home() {
           </div>
         </section>
       </main>
-      <PublicFooter />
+      <PublicFooter lessonHref={firstLessonHref} />
     </div>
   );
 }

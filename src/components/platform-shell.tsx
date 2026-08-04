@@ -4,29 +4,31 @@ import {
   CircleUserRound,
   LayoutDashboard,
   LogIn,
+  SlidersHorizontal,
 } from "lucide-react";
 import Link from "next/link";
 
 import { Brand } from "@/components/brand";
 import type { Viewer } from "@/lib/viewer";
 
-const navigation = [
-  { href: "/dashboard", label: "My learning", icon: LayoutDashboard },
-  {
-    href: "/course/skin-changes/observe",
-    label: "Course modules",
-    icon: BookOpenText,
-  },
-  { href: "/protocols", label: "Protocol checks", icon: BellRing },
-];
-
 export function PlatformShell({
   children,
   viewer,
+  coursesHref,
 }: {
   children: React.ReactNode;
   viewer: Viewer;
+  coursesHref: string;
 }) {
+  const navigation = [
+    { href: "/dashboard", label: "My learning", icon: LayoutDashboard },
+    { href: coursesHref, label: "Course modules", icon: BookOpenText },
+    { href: "/protocols", label: "Protocol checks", icon: BellRing },
+    ...(viewer.isAdmin
+      ? [{ href: "/admin", label: "Module admin", icon: SlidersHorizontal }]
+      : []),
+  ];
+
   return (
     <div className="min-h-screen bg-cream lg:grid lg:grid-cols-[17rem_1fr]">
       <aside className="hidden border-r border-white/10 bg-ink px-5 py-6 text-white lg:flex lg:flex-col">
@@ -99,7 +101,10 @@ export function PlatformShell({
         </header>
         <main>{children}</main>
         <nav
-          className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t border-ink/10 bg-white px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 lg:hidden"
+          className="fixed inset-x-0 bottom-0 z-30 grid border-t border-ink/10 bg-white px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 lg:hidden"
+          style={{
+            gridTemplateColumns: `repeat(${navigation.length}, minmax(0, 1fr))`,
+          }}
           aria-label="Mobile learner navigation"
         >
           {navigation.map(({ href, label, icon: Icon }) => (

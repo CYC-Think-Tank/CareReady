@@ -12,12 +12,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { LessonExperience } from "@/components/lesson-experience";
-import {
-  courseModules,
-  getLesson,
-  getModule,
-  getNextLesson,
-} from "@/content/course";
+import { getCourseLesson } from "@/lib/modules";
 import { getProgress } from "@/lib/progress";
 import { getViewer } from "@/lib/viewer";
 
@@ -27,8 +22,7 @@ type PageProps = {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { moduleId, lessonId } = await params;
-  const courseModule = getModule(moduleId);
-  const lesson = getLesson(moduleId, lessonId);
+  const { module: courseModule, lesson } = await getCourseLesson(moduleId, lessonId);
   return {
     title:
       courseModule && lesson
@@ -37,22 +31,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export function generateStaticParams() {
-  return courseModules.flatMap((module) =>
-    module.lessons.map((lesson) => ({ moduleId: module.id, lessonId: lesson.id })),
-  );
-}
-
 export default async function LessonPage({ params }: PageProps) {
   const { moduleId, lessonId } = await params;
-  const courseModule = getModule(moduleId);
-  const lesson = getLesson(moduleId, lessonId);
+  const { module: courseModule, lesson, nextLesson } = await getCourseLesson(
+    moduleId,
+    lessonId,
+  );
 
   if (!courseModule || !lesson) notFound();
 
   const viewer = await getViewer();
   const progress = await getProgress(viewer.id);
-  const nextLesson = getNextLesson(moduleId, lessonId);
   const initiallyComplete = progress.some(
     (record) =>
       record.module_id === moduleId &&

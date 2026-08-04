@@ -11,7 +11,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { courseModules, totalLessons } from "@/content/course";
+import { getCourseSummary, getFirstLessonHref } from "@/lib/modules";
 import { getProgress } from "@/lib/progress";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getViewer } from "@/lib/viewer";
@@ -27,6 +27,7 @@ export default async function DashboardPage() {
     redirect("/sign-in?next=/dashboard");
   }
 
+  const { modules: courseModules, totalLessons } = await getCourseSummary();
   const progress = await getProgress(viewer.id);
   const completedKeys = new Set(
     progress
@@ -34,7 +35,8 @@ export default async function DashboardPage() {
       .map((item) => `${item.module_id}:${item.lesson_id}`),
   );
   const completedCount = completedKeys.size;
-  const percent = Math.round((completedCount / totalLessons) * 100);
+  const percent =
+    totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
   const flatLessons = courseModules.flatMap((module) =>
     module.lessons.map((lesson) => ({ module, lesson })),
   );
@@ -43,6 +45,7 @@ export default async function DashboardPage() {
       ({ module, lesson }) =>
         !completedKeys.has(`${module.id}:${lesson.id}`),
     ) ?? flatLessons[0];
+  const browseHref = getFirstLessonHref(courseModules);
 
   return (
     <div className="mx-auto max-w-[1260px] px-5 pb-28 pt-8 sm:px-8 sm:pt-10 lg:pb-14">
@@ -56,7 +59,7 @@ export default async function DashboardPage() {
             Continue where you left off or review a workplace protocol.
           </p>
         </div>
-        <Link className="button-primary" href="/course/skin-changes/observe">
+        <Link className="button-primary" href={browseHref}>
           View all modules <ArrowRight size={18} />
         </Link>
       </section>
@@ -75,40 +78,61 @@ export default async function DashboardPage() {
       )}
 
       <section className="mt-8 grid gap-5 lg:grid-cols-[1.35fr_0.65fr]">
-        <article className="border-2 border-ink bg-paper p-6 shadow-[7px_7px_0_0_var(--ink)] sm:p-8">
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <span className="inline-flex items-center gap-2 bg-coral px-3 py-2 text-xs font-extrabold uppercase tracking-[0.13em] text-white">
-                <BookOpenCheck size={16} /> Up next
-              </span>
-              <p className="mt-6 text-xs font-extrabold uppercase tracking-[0.14em] text-teal">
-                Module {String(nextLesson.module.number).padStart(2, "0")} ·{" "}
-                {nextLesson.lesson.eyebrow}
-              </p>
-              <h2 className="mt-2 text-3xl font-black tracking-[-0.045em] text-ink">
-                {nextLesson.module.title}
-              </h2>
-              <p className="mt-3 max-w-xl text-sm leading-6 text-ink/60">
-                {nextLesson.module.summary}
-              </p>
+        {nextLesson ? (
+          <article className="border-2 border-ink bg-paper p-6 shadow-[7px_7px_0_0_var(--ink)] sm:p-8">
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <span className="inline-flex items-center gap-2 bg-coral px-3 py-2 text-xs font-extrabold uppercase tracking-[0.13em] text-white">
+                  <BookOpenCheck size={16} /> Up next
+                </span>
+                <p className="mt-6 text-xs font-extrabold uppercase tracking-[0.14em] text-teal">
+                  Module {String(nextLesson.module.number).padStart(2, "0")} ·{" "}
+                  {nextLesson.lesson.eyebrow}
+                </p>
+                <h2 className="mt-2 text-3xl font-black tracking-[-0.045em] text-ink">
+                  {nextLesson.module.title}
+                </h2>
+                <p className="mt-3 max-w-xl text-sm leading-6 text-ink/60">
+                  {nextLesson.module.summary}
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2 text-sm font-bold text-ink/50">
+                <Clock3 size={17} /> {nextLesson.lesson.minutes} min
+              </div>
             </div>
-            <div className="flex shrink-0 items-center gap-2 text-sm font-bold text-ink/50">
-              <Clock3 size={17} /> {nextLesson.lesson.minutes} min
+            <div className="mt-8 flex flex-col gap-4 border-t border-ink/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs font-bold text-ink/45">Next lesson</p>
+                <p className="mt-1 font-extrabold text-ink">{nextLesson.lesson.title}</p>
+              </div>
+              <Link
+                className="button-secondary"
+                href={`/course/${nextLesson.module.id}/${nextLesson.lesson.id}`}
+              >
+                Continue learning <ArrowRight size={18} />
+              </Link>
             </div>
-          </div>
-          <div className="mt-8 flex flex-col gap-4 border-t border-ink/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs font-bold text-ink/45">Next lesson</p>
-              <p className="mt-1 font-extrabold text-ink">{nextLesson.lesson.title}</p>
-            </div>
-            <Link
-              className="button-secondary"
-              href={`/course/${nextLesson.module.id}/${nextLesson.lesson.id}`}
-            >
-              Continue learning <ArrowRight size={18} />
-            </Link>
-          </div>
-        </article>
+          </article>
+        ) : (
+          <article className="border-2 border-dashed border-ink/30 bg-paper p-6 sm:p-8">
+            <span className="inline-flex items-center gap-2 bg-ink px-3 py-2 text-xs font-extrabold uppercase tracking-[0.13em] text-white">
+              <BookOpenCheck size={16} /> No modules yet
+            </span>
+            <h2 className="mt-6 text-3xl font-black tracking-[-0.045em] text-ink">
+              Nothing published
+            </h2>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-ink/60">
+              {viewer.isAdmin
+                ? "Add your first module from the admin area to get learners started."
+                : "Course content is being prepared. Check back soon."}
+            </p>
+            {viewer.isAdmin && (
+              <Link className="button-secondary mt-7" href="/admin/modules/new">
+                Create a module <ArrowRight size={18} />
+              </Link>
+            )}
+          </article>
+        )}
 
         <article className="flex flex-col border-2 border-ink bg-ink p-6 text-white sm:p-8">
           <div className="flex items-start justify-between">

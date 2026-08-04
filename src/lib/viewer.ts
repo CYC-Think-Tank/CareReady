@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cache } from "react";
+
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
@@ -9,9 +11,10 @@ export type Viewer = {
   fullName: string;
   profession: string;
   isDemo: boolean;
+  isAdmin: boolean;
 };
 
-export async function getViewer(): Promise<Viewer> {
+export const getViewer = cache(async (): Promise<Viewer> => {
   if (!isSupabaseConfigured()) {
     return {
       id: null,
@@ -19,6 +22,7 @@ export async function getViewer(): Promise<Viewer> {
       fullName: "Alex Morgan",
       profession: "Personal Support Worker",
       isDemo: true,
+      isAdmin: false,
     };
   }
 
@@ -33,10 +37,16 @@ export async function getViewer(): Promise<Viewer> {
       fullName: "Guest learner",
       profession: "Healthcare professional",
       isDemo: false,
+      isAdmin: false,
     };
   }
 
   const metadata = (claims.user_metadata ?? {}) as Record<string, unknown>;
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", claims.sub)
+    .maybeSingle();
 
   return {
     id: String(claims.sub),
@@ -53,5 +63,6 @@ export async function getViewer(): Promise<Viewer> {
         ? metadata.profession
         : "Healthcare professional",
     isDemo: false,
+    isAdmin: profile?.is_admin === true,
   };
-}
+});
