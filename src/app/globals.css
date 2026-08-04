@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f5f1e8;
+  --foreground: #153737;
+  --ink: #153737;
+  --teal: #176b63;
+  --mint: #b9e4cf;
+  --citrus: #dff05b;
+  --cream: #f5f1e8;
+  --paper: #fffefa;
+  --coral: #e87958;
+  --blue: #496fc2;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-ink: var(--ink);
+  --color-teal: var(--teal);
+  --color-mint: var(--mint);
+  --color-citrus: var(--citrus);
+  --color-cream: var(--cream);
+  --color-paper: var(--paper);
+  --color-coral: var(--coral);
+  --color-blue: var(--blue);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+a,
+input,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--citrus);
+  color: var(--ink);
+}
+
+@layer components {
+  .page-shell {
+    @apply mx-auto w-full max-w-[1180px] px-5 sm:px-8;
+  }
+
+  .button-primary {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 border-2 border-ink bg-ink px-5 text-sm font-extrabold text-white shadow-[4px_4px_0_0_var(--citrus)] transition hover:-translate-y-0.5 hover:bg-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-4 active:translate-y-0 active:shadow-none;
+  }
+
+  .button-secondary {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 border-2 border-ink bg-citrus px-5 text-sm font-extrabold text-ink shadow-[4px_4px_0_0_var(--ink)] transition hover:-translate-y-0.5 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-4 active:translate-y-0 active:shadow-none;
+  }
+
+  .button-quiet {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 border border-ink/15 bg-white px-4 text-sm font-bold text-ink transition hover:border-ink/40 hover:bg-mint/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2;
+  }
+
+  .nav-link {
+    @apply rounded-sm py-2 transition hover:text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-4;
+  }
+
+  .eyebrow {
+    @apply text-xs font-extrabold uppercase tracking-[0.18em] text-teal;
+  }
+
+  .footer-heading {
+    @apply text-xs font-extrabold uppercase tracking-[0.16em] text-mint;
+  }
+
+  .field-label {
+    @apply mb-2 block text-sm font-bold text-ink;
+  }
+
+  .text-field {
+    @apply min-h-12 w-full border border-ink/25 bg-white px-4 text-base text-ink outline-none transition placeholder:text-ink/35 focus:border-teal focus:ring-2 focus:ring-teal/20;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
